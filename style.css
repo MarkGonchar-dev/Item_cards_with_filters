@@ -1,0 +1,27 @@
+
+.container {
+    display: flex;
+}
+
+.card {
+    display: inline-block;
+    margin: 40px;
+    width: 200px;
+}
+
+.image {
+    width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 20px;
+}
+
+.title {
+    font: small-caps 18px/16px Arial
+}
+
+.pricetag {
+    font: bold small-caps 16px/0 Arial
+}
