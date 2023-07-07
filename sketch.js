@@ -9,6 +9,7 @@ rangeInput.addEventListener("change", function() {
 });
 
 let categories = [];
+let selectedCategories = [];
 
 fetch('https://dummyjson.com/products')
 .then(res => res.json())
@@ -17,16 +18,51 @@ fetch('https://dummyjson.com/products')
         const product = json["products"][i];
         const category = product.category;
         if (!categories.includes(category)) {
-            const element = document.createElement("p");
+            const element = document.createElement("button");
             categoriesContainer.appendChild(element);
             element.innerText = category;
+            element.setAttribute("class", "category");
+            element.addEventListener("click", () => toggleCategory(category));
 
             categories.push(category);
+            selectedCategories.push(category);
         }
     }
 });
 
 refreshItems(Infinity);
+refreshCategories();
+
+function refreshCategories() {
+    while (categoriesContainer.firstChild) {
+        categoriesContainer.removeChild(categoriesContainer.lastChild);
+    }
+    for (let i = 0; i < categories.length; i++) {
+        const category = categories[i];
+        const element = document.createElement("button");
+        categoriesContainer.appendChild(element);
+        element.innerText = category;
+        element.addEventListener("click", () => toggleCategory(category));
+
+        let scString = selectedCategories.includes(category) ? " selectedCategory" : "";
+        element.setAttribute("class", "category" + scString);
+    }
+}
+
+function toggleCategory(category) {
+    let newFilters = selectedCategories.slice();
+    if (newFilters.includes(category)) {
+      let index = newFilters.indexOf(category);
+      if (index >= 0)
+        newFilters.splice(index, 1);
+    } else {
+      newFilters.push(category);
+    }
+    selectedCategories = newFilters;
+    console.log(selectedCategories);
+    refreshCategories();
+    refreshItems(rangeInput.value);
+}
 
 function refreshItems(rangeValue) {
     fetch('https://dummyjson.com/products')
@@ -37,7 +73,7 @@ function refreshItems(rangeValue) {
         }
         for (let i = 0; i < json["products"].length; i++) {
             const product = json["products"][i];
-            if (product["price"] <= rangeValue) {
+            if (product["price"] <= rangeValue && selectedCategories.includes(product["category"])) {
                 const element = document.createElement("div");
                 container.appendChild(element);
                 element.setAttribute("class", "card");
