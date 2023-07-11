@@ -3,6 +3,8 @@ const rangeInput = document.getElementById("myRange");
 const container = document.getElementById("container");
 const categoriesContainer = document.getElementById("categories");
 
+const cartKey = "cart";
+
 rangeInput.addEventListener("change", function() {
     const rangeValue = rangeInput.value;
     refreshItems(rangeValue);
@@ -71,30 +73,61 @@ function refreshItems(rangeValue) {
         while (container.firstChild) {
             container.removeChild(container.lastChild);
         }
+
         for (let i = 0; i < json["products"].length; i++) {
             const product = json["products"][i];
-            if (product["price"] <= rangeValue && selectedCategories.includes(product["category"])) {
-                const element = document.createElement("div");
-                container.appendChild(element);
-                element.setAttribute("class", "card");
 
-                const image = document.createElement("div");
-                element.appendChild(image);
-                let len = parseFloat(product["images"].length);
-                let url = product["images"][Math.max(Math.round(Math.random() * len - 1), 0)];
-                image.setAttribute("class", "image");
-                image.style.backgroundImage = "url('" + url + "')";
+            if (product["price"] > rangeValue || !selectedCategories.includes(product["category"])) continue;
 
-                const title = document.createElement("p");
-                element.appendChild(title);
-                title.innerText = product["title"];
-                title.setAttribute("class", "title");
+            const element = document.createElement("div");
+            container.appendChild(element);
+            element.setAttribute("class", "card");
 
-                const pricetag = document.createElement("p");
-                element.appendChild(pricetag);
-                pricetag.innerText = "$ " + product["price"];
-                pricetag.setAttribute("class", "pricetag");
-            }
+            const image = document.createElement("div");
+            element.appendChild(image);
+            let len = parseFloat(product["images"].length);
+            let url = product["images"][Math.max(Math.round(Math.random() * len - 1), 0)];
+            image.setAttribute("class", "image");
+            image.style.backgroundImage = "url('" + url + "')";
+
+            const addToCart = document.createElement("button");
+            element.appendChild(addToCart);
+            addToCart.setAttribute("class", "addtocart");
+
+            const addToCart_icon = document.createElement("div");
+            addToCart.appendChild(addToCart_icon);
+            addToCart_icon.setAttribute("class", "addtocart-icon");
+
+            addToCart.addEventListener("click", () => {
+                if (localStorage.getItem(cartKey) === null) {
+                    let newCart = [product];
+                    localStorage.setItem(cartKey, JSON.stringify(newCart));
+                } else {
+                    let newCart = JSON.parse(localStorage.getItem(cartKey));
+                    if (newCart.find(e => e["id"] === product["id"])) {
+                        let index = newCart.findIndex(e => e["id"] === product["id"]);
+                        newCart.splice(index, 1);
+                        localStorage.setItem(cartKey, JSON.stringify(newCart));
+                    } else {
+                        newCart.push(product);
+                        localStorage.setItem(cartKey, JSON.stringify(newCart));
+                    }
+                }
+            });
+
+            const title = document.createElement("p");
+            element.appendChild(title);
+            title.innerText = product["title"];
+            title.setAttribute("class", "title");
+
+            const pricetag = document.createElement("p");
+            element.appendChild(pricetag);
+            pricetag.innerText = "$ " + product["price"];
+            pricetag.setAttribute("class", "pricetag");
         }
     });
+}
+
+function showCart() {
+    window.location = "cart.html";
 }
